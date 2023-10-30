@@ -192,26 +192,26 @@ func InstallDataFiles() {
 	}
 }
 
-func InstallWine() {
-	log.Print("downloading wine")
-	resp, err := grab.Get(".", WineURL)
-	if err != nil {
-		log.Fatalf("could not download wine: %s", err)
-	}
-	log.Print("installing wine")
-	cmd := exec.Command("tar", "xJf", resp.Filename)
-	if err := cmd.Run(); err != nil {
-		log.Fatalf("error installing wine: %s", err)
-	}
-	winecfg := path.Join(*installPath, "lutris-GE-Proton7-35-x86_64", "bin", "wineboot")
-	cmd = exec.Command(winecfg)
-	cmd.Env = os.Environ()
-	cmd.Env = append(cmd.Env, fmt.Sprintf("WINEPREFIX=%s", WinePrefix))
-	cmd.Env = append(cmd.Env, "WINEARCH=win32")
-	if err := cmd.Run(); err != nil {
-		log.Fatalf("error running winecfg: %s", err)
-	}
-}
+// func InstallWine() {
+// 	log.Print("downloading wine")
+// 	resp, err := grab.Get(".", WineURL)
+// 	if err != nil {
+// 		log.Fatalf("could not download wine: %s", err)
+// 	}
+// 	log.Print("installing wine")
+// 	cmd := exec.Command("tar", "xJf", resp.Filename)
+// 	if err := cmd.Run(); err != nil {
+// 		log.Fatalf("error installing wine: %s", err)
+// 	}
+// 	winecfg := path.Join(*installPath, "lutris-GE-Proton7-35-x86_64", "bin", "wineboot")
+// 	cmd = exec.Command(winecfg)
+// 	cmd.Env = os.Environ()
+// 	cmd.Env = append(cmd.Env, fmt.Sprintf("WINEPREFIX=%s", WinePrefix))
+// 	cmd.Env = append(cmd.Env, "WINEARCH=win32")
+// 	if err := cmd.Run(); err != nil {
+// 		log.Fatalf("error running winecfg: %s", err)
+// 	}
+// }
 
 func CheckFileHash(file, hash string) bool {
 	f, err := os.Open(file)
