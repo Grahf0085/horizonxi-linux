@@ -31,6 +31,7 @@ const (
 	SHA256Sum          = "af374c21eda3dc7517fc9e5b0da46eba9a928574a3c6792ea74de590571874c2"
 	DataFile           = "HorizonXI.zip"
 	WineURL            = "https://github.com/GloriousEggroll/wine-ge-custom/releases/download/GE-Proton7-35/wine-lutris-GE-Proton7-35-x86_64.tar.xz"
+	WineFile	   = "wine-lutris-GE-Proton7-35-x86_64.tar.xz"
 	DgVoodoo2URL       = "http://dege.freeweb.hu/dgVoodoo2/bin/dgVoodoo2_79_3.zip"
 	DXVKURL            = "https://github.com/doitsujin/dxvk/releases/download/v2.0/dxvk-2.0.tar.gz"
 
@@ -55,6 +56,7 @@ var (
 	installPath      = flag.String("p", os.Getenv("HOME")+"/HorizonXI", "install path")
 	winePath         = path.Join(*installPath, "lutris-GE-Proton7-35-x86_64/bin/wine")
 	dataFile         = flag.String("d", "", "path to HorizonXI.zip (optional, to skip download)")
+	wineFile	 = flag.String("w", "", "path to local Wine archive file (optional, to skip download")
 	RequiredPrograms = [...]string{"tar", "xz", "unzip"}
 )
 
@@ -192,26 +194,34 @@ func InstallDataFiles() {
 	}
 }
 
-// func InstallWine() {
-// 	log.Print("downloading wine")
-// 	resp, err := grab.Get(".", WineURL)
-// 	if err != nil {
-// 		log.Fatalf("could not download wine: %s", err)
-// 	}
-// 	log.Print("installing wine")
-// 	cmd := exec.Command("tar", "xJf", resp.Filename)
-// 	if err := cmd.Run(); err != nil {
-// 		log.Fatalf("error installing wine: %s", err)
-// 	}
-// 	winecfg := path.Join(*installPath, "lutris-GE-Proton7-35-x86_64", "bin", "wineboot")
-// 	cmd = exec.Command(winecfg)
-// 	cmd.Env = os.Environ()
-// 	cmd.Env = append(cmd.Env, fmt.Sprintf("WINEPREFIX=%s", WinePrefix))
-// 	cmd.Env = append(cmd.Env, "WINEARCH=win32")
-// 	if err := cmd.Run(); err != nil {
-// 		log.Fatalf("error running winecfg: %s", err)
-// 	}
-// }
+func InstallWine() {
+	if *winePath != "" {
+		log.Printf("installing wine from local file: %s", winePath)
+		cmd := exec.Command("tar", "xJf", winePath)
+		if err := cmd.Run(); err != nil {
+			log.Fatalf("error installing wine: %s", err)
+		}
+	} else {
+		log.Print("downloading wine")
+		resp, err := grab.Get(".", WineURL)
+		if err != nil {
+			log.Fatalf("could not download wine: %s", err)
+		}
+		log.Print("installing wine")
+		cmd := exec.Command("tar", "xJf", resp.Filename)
+		if err := cmd.Run(); err != nil {
+			log.Fatalf("error installing wine: %s", err)
+		}
+	}
+	winecfg := path.Join(*installPath, "lutris-GE-Proton7-35-x86_64", "bin", "wineboot")
+	cmd = exec.Command(winecfg)
+	cmd.Env = os.Environ()
+	cmd.Env = append(cmd.Env, fmt.Sprintf("WINEPREFIX=%s", WinePrefix))
+	cmd.Env = append(cmd.Env, "WINEARCH=win32")
+	if err := cmd.Run(); err != nil {
+		log.Fatalf("error running winecfg: %s", err)
+	}
+}
 
 func CheckFileHash(file, hash string) bool {
 	f, err := os.Open(file)
